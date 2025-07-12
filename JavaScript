@@ -1,0 +1,199 @@
+// Loading Screen
+window.addEventListener('load', () => {
+    const loading = document.getElementById('loading');
+    setTimeout(() => {
+        loading.style.opacity = '0';
+        setTimeout(() => {
+            loading.style.display = 'none';
+        }, 500);
+    }, 1000);
+});
+
+// Create floating bubbles
+function createBubbles() {
+    const bubblesContainer = document.getElementById('bubbles');
+    const bubbleCount = 30;
+
+    for (let i = 0; i < bubbleCount; i++) {
+        const bubble = document.createElement('div');
+        bubble.classList.add('bubble');
+        
+        // Random size between 5px and 30px
+        const size = Math.random() * 25 + 5;
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        
+        // Random positioning
+        bubble.style.left = Math.random() * 100 + '%';
+        bubble.style.top = Math.random() * 100 + '%';
+        
+        // Random animation duration and delay
+        bubble.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        bubble.style.animationDelay = Math.random() * 10 + 's';
+        
+        bubblesContainer.appendChild(bubble);
+    }
+}
+
+// Smooth scrolling
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Fade in animation on scroll
+function fadeInOnScroll() {
+    const elements = document.querySelectorAll('.fade-in');
+    elements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < window.innerHeight - elementVisible) {
+            element.classList.add('visible');
+        }
+    });
+}
+
+// Counter animation
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-number');
+    counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'));
+        const current = parseInt(counter.textContent);
+        
+        if (current < target) {
+            const increment = target / 50;
+            const newValue = Math.ceil(current + increment);
+            counter.textContent = newValue > target ? target : newValue;
+            
+            if (newValue < target) {
+                setTimeout(() => animateCounters(), 50);
+            }
+        }
+    });
+}
+
+// Header scroll effect
+function headerScrollEffect() {
+    const header = document.querySelector('header');
+    if (window.scrollY > 100) {
+        header.style.background = 'rgba(10, 10, 10, 0.95)';
+        header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.3)';
+    } else {
+        header.style.background = 'rgba(10, 10, 10, 0.9)';
+        header.style.boxShadow = 'none';
+    }
+}
+
+// Parallax effect
+function parallaxEffect() {
+    const scrolled = window.pageYOffset;
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+    }
+}
+
+// Stagger animation for tech categories
+function animateTechCategories() {
+    const techCategories = document.querySelectorAll('.tech-category');
+    techCategories.forEach((category, index) => {
+        setTimeout(() => {
+            category.classList.add('visible');
+        }, index * 100);
+    });
+}
+
+// FAQ toggle functionality
+function setupFAQs() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            item.classList.toggle('active');
+        });
+    });
+}
+
+// Change background color gradually
+function changeBackgroundColor() {
+    const bgImage = document.querySelector('.bg-image');
+    const hue = Math.floor(Math.random() * 360);
+    bgImage.style.filter = `hue-rotate(${hue}deg)`;
+}
+
+// Event listeners
+window.addEventListener('scroll', () => {
+    fadeInOnScroll();
+    headerScrollEffect();
+    parallaxEffect();
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    createBubbles();
+    fadeInOnScroll();
+    setupFAQs();
+    
+    // Change background color every 5 seconds
+    setInterval(changeBackgroundColor, 5000);
+    
+    // Animate tech categories when they come into view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateTechCategories();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    const techSection = document.querySelector('.tech-section');
+    if (techSection) {
+        observer.observe(techSection);
+    }
+});
+
+// Animate counters when stats section is visible
+const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            animateCounters();
+            statsObserver.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.5 });
+
+const statsSection = document.querySelector('.stats');
+if (statsSection) {
+    statsObserver.observe(statsSection);
+}
+
+// Mouse move effect for cards
+document.querySelectorAll('.service-card, .feature-card, .team-member').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = (y - centerY) / 10;
+        const rotateY = (centerX - x) / 10;
+        
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0) translateY(-10px)`;
+    });
+    
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0) translateY(0)';
+    });
+});
